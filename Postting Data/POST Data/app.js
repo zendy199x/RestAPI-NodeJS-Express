@@ -11,19 +11,23 @@ const Book = require("./models/bookModel");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-bookRouter.route("/books/:bookId")
+bookRouter.route("/books")
 .post((req, res) => {
-  const book = newBook(req.body);
+  const book = new Book(req.body);
 
-  console.log(book);
-  return res.json(book);
+  book.save();
+  return res.status(201).json(book);
 })
 .get((req, res) => {
-  Book.findById(req.params.bookId, (err, book) => {
+  const query = {};
+  if(req.query.genre) {
+    query.genre = req.query.genre;
+  }
+  Book.find(query, (err, books) => {
     if (err) {
       return res.send(err);
     }
-    return res.json(book);
+    return res.json(books);
   });
 });
 app.use("/api", bookRouter);
